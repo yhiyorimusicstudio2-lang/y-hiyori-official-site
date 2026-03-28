@@ -60,13 +60,7 @@ function App() {
     document.documentElement.setAttribute("translate", "no");
     document.body.setAttribute("translate", "no");
 
-    const titleMap: Record<Language, string> = {
-      ja: "y-Hiyori Official Site",
-      ko: "y-Hiyori Official Site",
-      en: "y-Hiyori Official Site",
-    };
-
-    document.title = titleMap[language];
+    document.title = "y-Hiyori Official Site";
   }, [language]);
 
   const openContactPage = () => {
@@ -97,9 +91,7 @@ function App() {
     setErrors((prev) => ({ ...prev, [name]: "" }));
   };
 
-  const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  };
+  const validateEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validateForm = (): boolean => {
     const nextErrors: ValidationErrors = {};
@@ -317,7 +309,6 @@ function App() {
                   <div className="work-body">
                     <h3>{work.title}</h3>
                     <p>{work.artist}</p>
-                    <span>{work.role}</span>
                   </div>
                 </button>
               ))}
@@ -655,10 +646,18 @@ function App() {
               <div className="modal-body">
                 <h3 className="modal-title">{selectedWork.title}</h3>
                 <p className="modal-artist">{selectedWork.artist}</p>
-                <p className="modal-role">{selectedWork.role}</p>
                 {selectedWork.release ? (
                   <p className="modal-release">{selectedWork.release}</p>
                 ) : null}
+
+                <div className="track-list">
+                  {selectedWork.tracks.map((track, index) => (
+                    <div className="track-item" key={`${track.title}-${index}`}>
+                      <p className="track-title">{track.title}</p>
+                      <p className="track-credit">{track.credit}</p>
+                    </div>
+                  ))}
+                </div>
 
                 <button
                   type="button"

@@ -1048,10 +1048,37 @@ img {
   }
 
   .discography-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
   }
 
   .modal-content {
     width: min(94vw, 360px);
   }
+}
+
+.track-list {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.track-item {
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.track-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.track-credit {
+  margin: 8px 0 0;
+  font-size: 0.95rem;
+  line-height: 1.8;
+  color: var(--muted);
 }

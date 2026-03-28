@@ -74,8 +74,8 @@ type TranslationSchema = {
 export const translations: Record<Language, TranslationSchema> = {
   ja: {
     nav: {
-      discography: "Discography",
-      contact: "Contact",
+      discography: "参加楽曲",
+      contact: "お問い合わせ",
       backHome: "トップへ戻る",
     },
     hero: {
@@ -151,10 +151,10 @@ export const translations: Record<Language, TranslationSchema> = {
 
   ko: {
     nav: {
-      discography: "Discography",
-      contact: "Contact",
-      backHome: "홈으로 돌아가기",
-    },
+  discography: "디스코그래피",
+  contact: "문의하기",
+  backHome: "홈으로 돌아가기",
+},
     hero: {
       eyebrow: "Composer / Track Maker / Producer",
       profileText:
