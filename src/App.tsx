@@ -60,6 +60,7 @@ function App() {
     setContactStep("form");
     setErrors({});
     setSubmitMessage("");
+    setSubmitError(false);
     window.history.pushState(null, "", "#contact-page");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -67,6 +68,9 @@ function App() {
   const goHomePage = () => {
     setPageView("home");
     setContactStep("form");
+    setErrors({});
+    setSubmitMessage("");
+    setSubmitError(false);
     window.history.pushState(null, "", "#");
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
@@ -253,7 +257,7 @@ function App() {
                     if (fallback) fallback.style.display = "flex";
                   }}
                 />
-                <div className="profile-image-fallback">No Image</div>
+                <div className="profile-image-fallback" aria-hidden="true" />
               </div>
             </div>
           </div>
@@ -293,7 +297,7 @@ function App() {
                         if (fallback) fallback.style.display = "flex";
                       }}
                     />
-                    <div className="work-image-fallback">Coming Soon</div>
+                    <div className="work-image-fallback" aria-hidden="true" />
                   </div>
 
                   <div className="work-body">
@@ -631,18 +635,16 @@ function App() {
                     if (fallback) fallback.style.display = "flex";
                   }}
                 />
-                <div className="modal-image-fallback">No Image</div>
+                <div className="modal-image-fallback" aria-hidden="true" />
               </div>
 
               <div className="modal-body">
-                <p className="section-label">{t.modal.detail}</p>
                 <h3 className="modal-title">{selectedWork.title}</h3>
                 <p className="modal-artist">{selectedWork.artist}</p>
                 <p className="modal-role">{selectedWork.role}</p>
                 {selectedWork.release ? (
                   <p className="modal-release">{selectedWork.release}</p>
                 ) : null}
-                <p className="modal-description">{selectedWork.description}</p>
 
                 <button
                   type="button"
