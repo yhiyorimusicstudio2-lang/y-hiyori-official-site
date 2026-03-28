@@ -55,6 +55,20 @@ function App() {
     }
   }, []);
 
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.setAttribute("translate", "no");
+    document.body.setAttribute("translate", "no");
+
+    const titleMap: Record<Language, string> = {
+      ja: "y-Hiyori Official Site",
+      ko: "y-Hiyori Official Site",
+      en: "y-Hiyori Official Site",
+    };
+
+    document.title = titleMap[language];
+  }, [language]);
+
   const openContactPage = () => {
     setPageView("contact");
     setContactStep("form");
