@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
-import { FaInstagram } from "react-icons/fa";
+import { FaInstagram, FaYoutube } from "react-icons/fa";
 import { works, type WorkItem } from "./data/works";
 import type { Language } from "./data/translations";
 import { translations } from "./data/translations";
@@ -45,6 +45,7 @@ function App() {
 
   const t = useMemo(() => translations[language], [language]);
   const instagramUrl = "https://www.instagram.com/yhiyori_music";
+  const youtubeUrl = "https://www.youtube.com/@y-Hiyori";
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -238,15 +239,24 @@ function App() {
               </div>
 
               <div className="hero-socials">
-                <a
-                  href={instagramUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label="Instagram"
-                >
-                  <FaInstagram />
-                </a>
-              </div>
+  <a
+    href={instagramUrl}
+    target="_blank"
+    rel="noreferrer"
+    aria-label="Instagram"
+  >
+    <FaInstagram />
+  </a>
+
+  <a
+    href={youtubeUrl}
+    target="_blank"
+    rel="noreferrer"
+    aria-label="YouTube"
+  >
+    <FaYoutube />
+  </a>
+</div>
             </div>
 
             <div className="hero-right">
