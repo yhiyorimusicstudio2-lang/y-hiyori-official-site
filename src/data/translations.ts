@@ -74,7 +74,7 @@ type TranslationSchema = {
 export const translations: Record<Language, TranslationSchema> = {
   ja: {
     nav: {
-      discography: "参加楽曲",
+      discography: "参加作品",
       contact: "お問い合わせ",
       backHome: "トップへ戻る",
     },
@@ -83,13 +83,13 @@ export const translations: Record<Language, TranslationSchema> = {
       profileText:
         "現在17歳でK-popアーティストに楽曲提供を目標に活動しています。",
       subtitle:
-        "一曲に複数のジャンルを配合したダンス曲を得意とし、主にK-popスタイルのサウンドを作るトラックメーカー",
+        "1曲の中にさまざまなジャンルを融合させたダンスミュージックを強みとし、主にK-popスタイルのサウンドを手がけるトラックメーカー",
       worksCta: "作品を見る",
       contactCta: "お問い合わせ",
     },
     discography: {
       label: "Discography",
-      title: "参加した作品",
+      title: "参加作品",
     },
     contactSection: {
       label: "Contact",
@@ -124,12 +124,12 @@ export const translations: Record<Language, TranslationSchema> = {
       confirmTitle: "入力内容の確認",
       confirmDescription: "以下の内容で送信してよろしいですか？",
       fieldRequired: "必須",
-      placeholderSubjectIndividual: "例：楽曲制作のご相談",
-      placeholderSubjectCompany: "例：法人案件のご相談",
+      placeholderSubjectIndividual: "",
+      placeholderSubjectCompany: "",
       placeholderMessageIndividual:
-        "ご依頼内容、ご希望のテイスト、納期などをご記入ください。",
+        "",
       placeholderMessageCompany:
-        "案件概要、用途、スケジュール、ご希望の内容などをご記入ください。",
+        "",
     },
     validation: {
       selectInquiryType: "お問い合わせ区分を選択してください。",
@@ -158,9 +158,9 @@ export const translations: Record<Language, TranslationSchema> = {
     hero: {
       eyebrow: "Composer / Track Maker / Producer",
       profileText:
-        "현재 17세이며, K-pop 아티스트에게 곡을 제공하는 것을 목표로 활동하고 있습니다.",
+        "저는 08년생으로, K-pop 아티스트와의 작업을 목표로 활동하고 있는 트랙메이커입니다.",
       subtitle:
-        "한 곡 안에 여러 장르를 조합한 댄스곡을 강점으로 하며, 주로 K-pop 스타일의 사운드를 만드는 트랙메이커입니다.",
+        "한 곡 안에 다양한 장르를 조합한 댄스곡을 강점으로 하며, 주로 K-pop 스타일의 사운드를 만들고 있습니다.",
       worksCta: "작품 보기",
       contactCta: "문의하기",
     },
@@ -201,12 +201,12 @@ export const translations: Record<Language, TranslationSchema> = {
       confirmTitle: "입력 내용 확인",
       confirmDescription: "아래 내용으로 전송하시겠습니까?",
       fieldRequired: "필수",
-      placeholderSubjectIndividual: "예: 곡 작업 문의",
-      placeholderSubjectCompany: "예: 법인 프로젝트 문의",
+      placeholderSubjectIndividual: "",
+      placeholderSubjectCompany: "",
       placeholderMessageIndividual:
-        "원하시는 작업 내용, 분위기, 일정 등을 입력해 주세요.",
+        "",
       placeholderMessageCompany:
-        "프로젝트 개요, 용도, 일정, 요청사항 등을 입력해 주세요.",
+        "",
     },
     validation: {
       selectInquiryType: "문의 구분을 선택해 주세요.",
@@ -235,22 +235,22 @@ export const translations: Record<Language, TranslationSchema> = {
     hero: {
       eyebrow: "Composer / Track Maker / Producer",
       profileText:
-        "Currently 17 years old, working toward the goal of providing songs for K-pop artists.",
+        "Currently 17 years old, working toward a career in songwriting and production for K-pop artists.",
       subtitle:
-        "A track maker specializing in dance music that blends multiple genres within a single song, mainly creating K-pop style sounds.",
+        "Specializing in dance music that blends multiple genres within a single track, with a focus on K-pop-inspired sound.",
       worksCta: "View Works",
       contactCta: "Contact",
     },
     discography: {
       label: "Discography",
-      title: "Participated Works",
+      title: "Selected Works",
     },
     contactSection: {
       label: "Contact",
       title: "Contact",
       text:
         "For commissions, collaborations, and music inquiries, please use the dedicated form.",
-      button: "Go to Contact Form",
+      button: "Contact",
     },
     contactPage: {
       eyebrow: "Contact",
@@ -278,12 +278,12 @@ export const translations: Record<Language, TranslationSchema> = {
       confirmTitle: "Review Your Message",
       confirmDescription: "Please confirm the details below before sending.",
       fieldRequired: "Required",
-      placeholderSubjectIndividual: "e.g. Music production inquiry",
-      placeholderSubjectCompany: "e.g. Corporate project inquiry",
+      placeholderSubjectIndividual: "",
+      placeholderSubjectCompany: "",
       placeholderMessageIndividual:
-        "Please describe your request, preferred style, and deadline.",
+        "",
       placeholderMessageCompany:
-        "Please share the project outline, usage, schedule, and request details.",
+        "",
     },
     validation: {
       selectInquiryType: "Please select an inquiry type.",

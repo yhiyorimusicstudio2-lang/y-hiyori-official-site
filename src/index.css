@@ -1082,3 +1082,7 @@ img {
   line-height: 1.8;
   color: var(--muted);
 }
+
+.hero-name-block .hero-socials {
+  margin-top: 10px;
+}

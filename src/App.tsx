@@ -60,7 +60,6 @@ function App() {
     document.documentElement.lang = language;
     document.documentElement.setAttribute("translate", "no");
     document.body.setAttribute("translate", "no");
-
     document.title = "y-Hiyori Official Site";
   }, [language]);
 
@@ -220,6 +219,26 @@ function App() {
               <div className="hero-name-block">
                 <h1 className="hero-title">y-Hiyori</h1>
                 <p className="hero-realname">Yamaguchi Hiyori</p>
+
+                <div className="hero-socials">
+                  <a
+                    href={instagramUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Instagram"
+                  >
+                    <FaInstagram />
+                  </a>
+
+                  <a
+                    href={youtubeUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="YouTube"
+                  >
+                    <FaYoutube />
+                  </a>
+                </div>
               </div>
 
               <p className="hero-profile-text">{t.hero.profileText}</p>
@@ -237,26 +256,6 @@ function App() {
                   {t.hero.contactCta}
                 </button>
               </div>
-
-              <div className="hero-socials">
-  <a
-    href={instagramUrl}
-    target="_blank"
-    rel="noreferrer"
-    aria-label="Instagram"
-  >
-    <FaInstagram />
-  </a>
-
-  <a
-    href={youtubeUrl}
-    target="_blank"
-    rel="noreferrer"
-    aria-label="YouTube"
-  >
-    <FaYoutube />
-  </a>
-</div>
             </div>
 
             <div className="hero-right">
