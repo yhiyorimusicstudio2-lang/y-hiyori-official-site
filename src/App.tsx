@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { FaInstagram, FaYoutube } from "react-icons/fa";
 import { works, type WorkItem } from "./data/works";
+import { youtubeVideos } from "./data/youtube";
 import type { Language } from "./data/translations";
 import { translations } from "./data/translations";
 
@@ -27,6 +28,7 @@ function App() {
   const [selectedWork, setSelectedWork] = useState<WorkItem | null>(null);
   const [pageView, setPageView] = useState<PageView>("home");
   const [contactStep, setContactStep] = useState<ContactStep>("form");
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
 
   const [form, setForm] = useState<ContactFormState>({
     inquiryType: "",
@@ -45,7 +47,7 @@ function App() {
 
   const t = useMemo(() => translations[language], [language]);
   const instagramUrl = "https://www.instagram.com/yhiyori_music";
-  const youtubeUrl = "https://www.youtube.com/@y-Hiyori";
+  const youtubeChannelUrl = "https://www.youtube.com/@y-Hiyori";
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -62,6 +64,16 @@ function App() {
     document.body.setAttribute("translate", "no");
     document.title = "y-Hiyori Official Site";
   }, [language]);
+
+  useEffect(() => {
+    if (youtubeVideos.length <= 1) return;
+
+    const interval = window.setInterval(() => {
+      setCurrentVideoIndex((prev) => (prev + 1) % youtubeVideos.length);
+    }, 5000);
+
+    return () => window.clearInterval(interval);
+  }, []);
 
   const openContactPage = () => {
     setPageView("contact");
@@ -231,7 +243,7 @@ function App() {
                   </a>
 
                   <a
-                    href={youtubeUrl}
+                    href={youtubeChannelUrl}
                     target="_blank"
                     rel="noreferrer"
                     aria-label="YouTube"
@@ -280,6 +292,56 @@ function App() {
       </section>
 
       <main>
+        <motion.section
+          className="video-hero"
+          initial={{ opacity: 0, y: 36 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.8 }}
+        >
+          <div className="video-hero-inner">
+            <div className="video-hero-frame">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={youtubeVideos[currentVideoIndex].id}
+                  className="video-hero-slide"
+                  initial={{ opacity: 0, x: 40 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -40 }}
+                  transition={{ duration: 0.45 }}
+                >
+                  <iframe
+                    className="video-hero-embed"
+                    src={youtubeVideos[currentVideoIndex].embedUrl}
+                    title={`youtube-video-${youtubeVideos[currentVideoIndex].id}`}
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    referrerPolicy="strict-origin-when-cross-origin"
+                    allowFullScreen
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </div>
+
+            {youtubeVideos.length > 1 ? (
+              <div className="video-hero-dots" aria-label="video navigation">
+                {youtubeVideos.map((video, index) => (
+                  <button
+                    key={video.id}
+                    type="button"
+                    className={
+                      index === currentVideoIndex
+                        ? "video-hero-dot active"
+                        : "video-hero-dot"
+                    }
+                    onClick={() => setCurrentVideoIndex(index)}
+                    aria-label={`video ${index + 1}`}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </div>
+        </motion.section>
+
         <motion.section
           id="discography"
           className="section"
