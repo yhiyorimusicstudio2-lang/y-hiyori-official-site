@@ -6,7 +6,7 @@ export type YoutubeVideoItem = {
 export const youtubeVideos: YoutubeVideoItem[] = [
   {
     id: "video-1",
-    embedUrl: "https://youtu.be/qhfG7Pj_3vg?si=fhnbPeppGFI41n88",
+    embedUrl: "https://youtu.be/qhfG7Pj_3vg?si=XwrpzapPQDI2nofo",
   },
 
 ];
