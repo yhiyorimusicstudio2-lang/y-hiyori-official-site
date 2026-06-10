@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import emailjs from "@emailjs/browser";
-import { FaInstagram, FaYoutube } from "react-icons/fa";
+import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { works, type WorkItem } from "./data/works";
 import { youtubeVideos } from "./data/youtube";
 import type { Language } from "./data/translations";
@@ -48,6 +48,7 @@ function App() {
   const t = useMemo(() => translations[language], [language]);
   const instagramUrl = "https://www.instagram.com/yhiyori_music";
   const youtubeChannelUrl = "https://www.youtube.com/@y-Hiyori";
+  const tiktokUrl = "https://www.tiktok.com/@yhiyorimusic?is_from_webapp=1&sender_device=pc";
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -242,6 +243,7 @@ function App() {
                     <FaInstagram />
                   </a>
 
+                  
                   <a
                     href={youtubeChannelUrl}
                     target="_blank"
@@ -250,6 +252,16 @@ function App() {
                   >
                     <FaYoutube />
                   </a>
+
+                  <a
+                    href={tiktokUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="TikTok"
+                  >
+                    <FaTiktok />
+                  </a>
+                  
                 </div>
               </div>
 
