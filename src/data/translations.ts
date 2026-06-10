@@ -83,7 +83,7 @@ export const translations: Record<Language, TranslationSchema> = {
       profileText:
         "現在17歳でK-popアーティストに楽曲提供を目標に活動しています。",
       subtitle:
-        "1曲の中にさまざまなジャンルを融合させたダンスミュージックを強みとし、主にK-popスタイルのサウンドを手がけるトラックメーカー",
+        "韓国でFull8loom gloryface作曲家と楽曲制作。821sound見学を経験。",
       worksCta: "作品を見る",
       contactCta: "お問い合わせ",
     },
@@ -160,7 +160,7 @@ export const translations: Record<Language, TranslationSchema> = {
       profileText:
         "저는 08년생으로, K-pop 아티스트와의 작업을 목표로 활동하고 있는 트랙메이커입니다.",
       subtitle:
-        "한 곡 안에 다양한 장르를 조합한 댄스곡을 강점으로 하며, 주로 K-pop 스타일의 사운드를 만들고 있습니다.",
+        "한국에서 Full8loom gloryface 작곡가와 곡을 제작. 821sound 견학 경험.",
       worksCta: "작품 보기",
       contactCta: "문의하기",
     },
@@ -237,7 +237,7 @@ export const translations: Record<Language, TranslationSchema> = {
       profileText:
         "Currently 17 years old, working toward a career in songwriting and production for K-pop artists.",
       subtitle:
-        "Specializing in dance music that blends multiple genres within a single track, with a focus on K-pop-inspired sound.",
+        "Composer Full8loom Gloryface and song production in Korea. Experience 821 sound tour.",
       worksCta: "View Works",
       contactCta: "Contact",
     },
