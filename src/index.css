@@ -201,7 +201,8 @@ img {
 }
 
 .brand-socials a {
-  font-size: 1.08rem;
+  font-size: 1.16rem;
+  line-height: 1;
   color: var(--muted);
   transition: color 0.3s var(--ease), transform 0.3s var(--ease);
 }
@@ -519,18 +520,19 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 26px;
+  gap: 30px;
 }
 
 .rail-line {
   display: block;
   width: 1px;
-  height: 64px;
+  height: 78px;
   background: var(--line-strong);
 }
 
 .social-rail a {
-  font-size: 1.62rem;
+  font-size: 2.15rem;
+  line-height: 1;
   color: var(--ink);
   transition: color 0.3s var(--ease), transform 0.3s var(--ease);
 }
@@ -1357,7 +1359,7 @@ img {
     padding: 16px 18px;
   }
 
-  .brand {
+.brand {
     font-size: 1.25rem;
   }
 
@@ -1452,15 +1454,15 @@ img {
   }
 
   .social-rail {
-    gap: 16px;
+    gap: 18px;
   }
 
   .rail-line {
-    height: 38px;
+    height: 46px;
   }
 
   .social-rail a {
-    font-size: 1.35rem;
+    font-size: 1.8rem;
   }
 
   .brand-socials {
