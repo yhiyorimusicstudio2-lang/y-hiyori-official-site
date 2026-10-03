@@ -1,5 +1,13 @@
-import { useEffect, useMemo, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useMemo, useRef, useState } from "react";
+import type { ChangeEvent, FormEvent, ReactNode } from "react";
+import {
+  AnimatePresence,
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+} from "framer-motion";
 import emailjs from "@emailjs/browser";
 import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
 import { works, type WorkItem } from "./data/works";
@@ -23,12 +31,71 @@ type ContactFormState = {
 
 type ValidationErrors = Partial<Record<keyof ContactFormState | "inquiryType", string>>;
 
+const EASE = [0.22, 1, 0.36, 1] as const;
+
+// 生年月日 — 実際の誕生日に合わせて変更してください。
+// {age} トークンがこの日付を基準に「満年齢」へ自動で置き換わります。
+const BIRTH = { year: 2008, month: 9, day: 9 };
+
+function calculateAge(birth: { year: number; month: number; day: number }) {
+  const now = new Date();
+  let age = now.getFullYear() - birth.year;
+  const month = now.getMonth() + 1;
+  const day = now.getDate();
+  const beforeBirthday =
+    month < birth.month || (month === birth.month && day < birth.day);
+  if (beforeBirthday) age -= 1;
+  return age;
+}
+
+function usePrefersReducedMotion() {
+  const [reduce, setReduce] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const update = () => setReduce(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  return reduce;
+}
+
+function Reveal({
+  children,
+  delay = 0,
+  y = 34,
+  className,
+  reduce = false,
+}: {
+  children: ReactNode;
+  delay?: number;
+  y?: number;
+  className?: string;
+  reduce?: boolean;
+}) {
+  return (
+    <motion.div
+      className={className}
+      initial={reduce ? { y: 0 } : { y }}
+      whileInView={{ y: 0 }}
+      viewport={{ once: true, amount: 0.1 }}
+      transition={{ duration: reduce ? 0 : 0.9, delay: reduce ? 0 : delay, ease: EASE }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 function App() {
   const [language, setLanguage] = useState<Language>("ja");
   const [selectedWork, setSelectedWork] = useState<WorkItem | null>(null);
   const [pageView, setPageView] = useState<PageView>("home");
   const [contactStep, setContactStep] = useState<ContactStep>("form");
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
+  const [intro, setIntro] = useState(true);
 
   const [form, setForm] = useState<ContactFormState>({
     inquiryType: "",
@@ -46,9 +113,60 @@ function App() {
   const [submitError, setSubmitError] = useState(false);
 
   const t = useMemo(() => translations[language], [language]);
+  const reduce = usePrefersReducedMotion();
+
   const instagramUrl = "https://www.instagram.com/yhiyori_music";
   const youtubeChannelUrl = "https://www.youtube.com/@y-Hiyori";
   const tiktokUrl = "https://www.tiktok.com/@yhiyorimusic?is_from_webapp=1&sender_device=pc";
+
+  /* ---------- scroll choreography ---------- */
+  const heroRef = useRef<HTMLDivElement>(null);
+  const timeRef = useRef<HTMLSpanElement>(null);
+
+  const { scrollYProgress } = useScroll();
+  const progressScale = useSpring(scrollYProgress, {
+    stiffness: 140,
+    damping: 30,
+    mass: 0.3,
+  });
+
+  const { scrollYProgress: heroProg } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end end"],
+  });
+
+  const heroScale = useTransform(heroProg, [0, 1], [1, 0.82]);
+  const heroY = useTransform(heroProg, [0, 1], [0, -50]);
+  const heroOpacity = useTransform(heroProg, [0, 0.55, 1], [1, 0.85, 0]);
+  const heroFilter = useTransform(heroProg, [0, 1], ["blur(0px)", "blur(9px)"]);
+  const portraitScale = useTransform(heroProg, [0, 1], [1, 1.16]);
+  const portraitOpacity = useTransform(heroProg, [0, 0.7, 1], [1, 0.9, 0.1]);
+  const hintOpacity = useTransform(heroProg, [0, 0.18], [1, 0]);
+  const stageGlow = useTransform(heroProg, [0, 1], [1, 0.15]);
+
+  const age = useMemo(() => calculateAge(BIRTH), []);
+  const withAge = (text: string) => text.replace(/\{age\}/g, String(age));
+
+  useMotionValueEvent(scrollYProgress, "change", (v) => {
+    if (!timeRef.current) return;
+    const total = 210;
+    const s = Math.max(0, Math.round(v * total));
+    timeRef.current.textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(
+      s % 60,
+    ).padStart(2, "0")}`;
+  });
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setIntro(false), 1100);
+    return () => window.clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const hash = window.location.hash;
@@ -63,7 +181,7 @@ function App() {
     document.documentElement.lang = language;
     document.documentElement.setAttribute("translate", "no");
     document.body.setAttribute("translate", "no");
-    document.title = "y-Hiyori Official Site";
+    document.title = "y-Hiyori — Composer / Track Maker / Producer";
   }, [language]);
 
   useEffect(() => {
@@ -71,11 +189,12 @@ function App() {
 
     const interval = window.setInterval(() => {
       setCurrentVideoIndex((prev) => (prev + 1) % youtubeVideos.length);
-    }, 5000);
+    }, 6000);
 
     return () => window.clearInterval(interval);
   }, []);
 
+  /* ---------- navigation ---------- */
   const openContactPage = () => {
     setPageView("contact");
     setContactStep("form");
@@ -96,8 +215,9 @@ function App() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
+  /* ---------- form logic (unchanged behaviour) ---------- */
   const handleInputChange = (
-    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
+    event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
   ) => {
     const { name, value } = event.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -139,7 +259,7 @@ function App() {
     return Object.keys(nextErrors).length === 0;
   };
 
-  const handleGoConfirm = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleGoConfirm = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitMessage("");
     setSubmitError(false);
@@ -166,8 +286,7 @@ function App() {
       return;
     }
 
-    const senderName =
-      form.inquiryType === "individual" ? form.name : form.companyName;
+    const senderName = form.inquiryType === "individual" ? form.name : form.companyName;
 
     try {
       await emailjs.send(
@@ -214,218 +333,243 @@ function App() {
   const renderFieldError = (key: keyof ValidationErrors) =>
     errors[key] ? <p className="field-error">{errors[key]}</p> : null;
 
+  /* ---------- HOME ---------- */
   const renderHomePage = () => (
     <>
-      <section className="hero">
-        <div className="hero-bg" />
+      <section className="hero" id="top" ref={heroRef}>
+        <div className="hero-stage">
+          <motion.div
+            className="hero-glow"
+            style={reduce ? undefined : { opacity: stageGlow }}
+            aria-hidden="true"
+          />
 
-        <motion.div
-          className="hero-content"
-          initial={{ opacity: 0, y: 28 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9 }}
-        >
-          <div className="hero-grid">
-            <div className="hero-left">
-              <p className="eyebrow">{t.hero.eyebrow}</p>
+          <div className="hero-kana" aria-hidden="true">
+            <span>{t.hero.kana}</span>
+          </div>
 
-              <div className="hero-name-block">
-                <h1 className="hero-title">y-Hiyori</h1>
-                <p className="hero-realname">Yamaguchi Hiyori</p>
+          <motion.div
+            className="hero-inner"
+            style={
+              reduce
+                ? undefined
+                : { scale: heroScale, y: heroY, opacity: heroOpacity, filter: heroFilter }
+            }
+          >
+            <div className="hero-grid">
+              <div className="hero-left">
+                <p className="eyebrow">{t.hero.eyebrow}</p>
 
-                <div className="hero-socials">
-                  <a
-                    href={instagramUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="Instagram"
-                  >
-                    <FaInstagram />
+                <h1 className="hero-title">
+                  y-Hiyori<span className="accent-dot">.</span>
+                </h1>
+
+                <p className="hero-realname">{t.hero.kana}</p>
+
+                <p className="hero-profile-text">{withAge(t.hero.profileText)}</p>
+                <p className="hero-subtitle">{t.hero.subtitle}</p>
+
+                <div className="hero-actions">
+                  <a href="#sound" className="ghost-btn">
+                    {t.hero.worksCta}
                   </a>
-
-                  
-                  <a
-                    href={youtubeChannelUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="YouTube"
-                  >
-                    <FaYoutube />
-                  </a>
-
-                  <a
-                    href={tiktokUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label="TikTok"
-                  >
-                    <FaTiktok />
-                  </a>
-                  
+                  <button type="button" className="primary-btn" onClick={openContactPage}>
+                    {t.hero.contactCta}
+                  </button>
                 </div>
+
               </div>
 
-              <p className="hero-profile-text">{t.hero.profileText}</p>
-              <p className="hero-subtitle">{t.hero.subtitle}</p>
-
-              <div className="hero-actions">
-                <a href="#discography" className="ghost-btn">
-                  {t.hero.worksCta}
-                </a>
-                <button
-                  type="button"
-                  className="primary-btn"
-                  onClick={openContactPage}
-                >
-                  {t.hero.contactCta}
-                </button>
-              </div>
-            </div>
-
-            <div className="hero-right">
-              <div className="profile-image-wrapper">
-                <img
-                  src="/profile.jpeg"
-                  alt="profile"
-                  className="profile-image"
-                  onError={(event) => {
-                    const target = event.currentTarget;
-                    target.style.display = "none";
-                    const fallback =
-                      target.nextElementSibling as HTMLDivElement | null;
-                    if (fallback) fallback.style.display = "flex";
-                  }}
-                />
-                <div className="profile-image-fallback" aria-hidden="true" />
-              </div>
-            </div>
-          </div>
-        </motion.div>
-      </section>
-
-      <main>
-        <motion.section
-          className="video-hero"
-          initial={{ opacity: 0, y: 36 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="video-hero-inner">
-            <div className="video-hero-frame">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={youtubeVideos[currentVideoIndex].id}
-                  className="video-hero-slide"
-                  initial={{ opacity: 0, x: 40 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -40 }}
-                  transition={{ duration: 0.45 }}
-                >
-                  <iframe
-                    className="video-hero-embed"
-                    src={youtubeVideos[currentVideoIndex].embedUrl}
-                    title={`youtube-video-${youtubeVideos[currentVideoIndex].id}`}
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                    referrerPolicy="strict-origin-when-cross-origin"
-                    allowFullScreen
-                  />
-                </motion.div>
-              </AnimatePresence>
-            </div>
-
-            {youtubeVideos.length > 1 ? (
-              <div className="video-hero-dots" aria-label="video navigation">
-                {youtubeVideos.map((video, index) => (
-                  <button
-                    key={video.id}
-                    type="button"
-                    className={
-                      index === currentVideoIndex
-                        ? "video-hero-dot active"
-                        : "video-hero-dot"
-                    }
-                    onClick={() => setCurrentVideoIndex(index)}
-                    aria-label={`video ${index + 1}`}
-                  />
-                ))}
-              </div>
-            ) : null}
-          </div>
-        </motion.section>
-
-        <motion.section
-          id="discography"
-          className="section"
-          initial={{ opacity: 0, y: 36 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="section-inner">
-            <p className="section-label">{t.discography.label}</p>
-            <h2>{t.discography.title}</h2>
-
-            <div className="discography-grid">
-              {works.map((work, index) => (
-                <button
-                  type="button"
-                  className="work-card work-card-button"
-                  key={`${work.title}-${index}`}
-                  onClick={() => setSelectedWork(work)}
-                >
-                  <div className="work-image">
+              <div className="hero-right">
+                <div className="portrait-block">
+                  <div className="portrait-accent" aria-hidden="true" />
+                  <motion.div
+                    className="portrait-frame"
+                    style={reduce ? undefined : { scale: portraitScale, opacity: portraitOpacity }}
+                  >
                     <img
-                      src={work.image}
-                      alt={`${work.artist} - ${work.title}`}
+                      src="/profile.jpeg"
+                      alt="y-Hiyori — Yamaguchi Hiyori"
+                      className="portrait-image"
                       onError={(event) => {
                         const target = event.currentTarget;
                         target.style.display = "none";
-                        const fallback =
-                          target.nextElementSibling as HTMLDivElement | null;
+                        const fallback = target.nextElementSibling as HTMLDivElement | null;
                         if (fallback) fallback.style.display = "flex";
                       }}
                     />
-                    <div className="work-image-fallback" aria-hidden="true" />
-                  </div>
+                    <div className="portrait-fallback" aria-hidden="true">
+                      <span>y-Hiyori</span>
+                    </div>
+                  </motion.div>
+                </div>
 
-                  <div className="work-body">
-                    <h3>{work.title}</h3>
-                    <p>{work.artist}</p>
-                  </div>
-                </button>
+                <div className="social-rail">
+                  <span className="rail-line" aria-hidden="true" />
+                  <a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram">
+                    <FaInstagram />
+                  </a>
+                  <a href={youtubeChannelUrl} target="_blank" rel="noreferrer" aria-label="YouTube">
+                    <FaYoutube />
+                  </a>
+                  <a href={tiktokUrl} target="_blank" rel="noreferrer" aria-label="TikTok">
+                    <FaTiktok />
+                  </a>
+                  <span className="rail-line" aria-hidden="true" />
+                </div>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div
+            className="scroll-hint"
+            style={reduce ? undefined : { opacity: hintOpacity }}
+          >
+            <span className="scroll-hint-text">{t.hero.scroll}</span>
+            <span className="scroll-hint-line" aria-hidden="true" />
+          </motion.div>
+        </div>
+      </section>
+
+      <main>
+        <section id="profile" className="section profile-section">
+          <div className="section-inner">
+            <div className="profile-grid">
+              <Reveal className="profile-head" reduce={reduce}>
+                <p className="section-label">{t.about.label}</p>
+                <h2 className="display-title">{t.about.title}</h2>
+              </Reveal>
+
+              <Reveal className="profile-body" delay={0.12} reduce={reduce}>
+                <p className="section-text">{withAge(t.about.body)}</p>
+
+                <dl className="fact-list">
+                  {t.about.facts.map((fact) => (
+                    <div className="fact-row" key={fact.k}>
+                      <dt>{fact.k}</dt>
+                      <dd>{withAge(fact.v)}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </Reveal>
+            </div>
+          </div>
+        </section>
+
+        <section id="sound" className="section sound-section">
+          <div className="section-inner">
+            <Reveal className="section-head" reduce={reduce}>
+              <p className="section-label">{t.sound.label}</p>
+              <h2 className="display-title">{t.sound.title}</h2>
+            </Reveal>
+
+            <Reveal delay={0.1} reduce={reduce}>
+              <div className="sound-frame">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={youtubeVideos[currentVideoIndex].id}
+                    className="sound-slide"
+                    initial={{ opacity: 0, scale: 1.02 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 1.02 }}
+                    transition={{ duration: 0.55, ease: EASE }}
+                  >
+                    <iframe
+                      className="sound-embed"
+                      src={youtubeVideos[currentVideoIndex].embedUrl}
+                      title={`youtube-video-${youtubeVideos[currentVideoIndex].id}`}
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                      referrerPolicy="strict-origin-when-cross-origin"
+                      allowFullScreen
+                    />
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+            </Reveal>
+
+            <div className="sound-meta">
+              <span className="sound-caption">{t.sound.caption}</span>
+              {youtubeVideos.length > 1 ? (
+                <div className="sound-dots" aria-label="video navigation">
+                  {youtubeVideos.map((video, index) => (
+                    <button
+                      key={video.id}
+                      type="button"
+                      className={index === currentVideoIndex ? "sound-dot active" : "sound-dot"}
+                      onClick={() => setCurrentVideoIndex(index)}
+                      aria-label={`video ${index + 1}`}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
+        <section id="discography" className="section works-section">
+          <div className="section-inner">
+            <Reveal className="section-head" reduce={reduce}>
+              <p className="section-label">{t.discography.label}</p>
+              <h2 className="display-title">{t.discography.title}</h2>
+            </Reveal>
+
+            <div className="works-grid">
+              {works.map((work, index) => (
+                <Reveal key={`${work.title}-${index}`} delay={index * 0.08} reduce={reduce}>
+                  <button
+                    type="button"
+                    className="work-card"
+                    onClick={() => setSelectedWork(work)}
+                  >
+                    <div className="work-image">
+                      <img
+                        src={work.image}
+                        alt={`${work.artist} - ${work.title}`}
+                        onError={(event) => {
+                          const target = event.currentTarget;
+                          target.style.display = "none";
+                          const fallback = target.nextElementSibling as HTMLDivElement | null;
+                          if (fallback) fallback.style.display = "flex";
+                        }}
+                      />
+                      <div className="work-image-fallback" aria-hidden="true" />
+                      <span className="work-index">
+                        {String(index + 1).padStart(2, "0")}
+                      </span>
+                    </div>
+                    <div className="work-body">
+                      <h3>{work.title}</h3>
+                      <p>{work.artist}</p>
+                      {work.release ? <span>{work.release}</span> : null}
+                    </div>
+                  </button>
+                </Reveal>
               ))}
             </div>
           </div>
-        </motion.section>
+        </section>
 
-        <motion.section
-          id="contact"
-          className="section contact-preview-section"
-          initial={{ opacity: 0, y: 36 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.8 }}
-        >
-          <div className="section-inner contact-preview-card">
-            <p className="section-label">{t.contactSection.label}</p>
-            <h2>{t.contactSection.title}</h2>
-            <p className="section-text">{t.contactSection.text}</p>
-            <button
-              type="button"
-              className="primary-btn"
-              onClick={openContactPage}
-            >
-              {t.contactSection.button}
-            </button>
+        <section id="contact" className="section contact-cta-section">
+          <div className="section-inner">
+            <Reveal reduce={reduce}>
+              <div className="contact-cta">
+                <p className="section-label">{t.contactSection.label}</p>
+                <h2 className="display-title cta-title">{t.contactSection.title}</h2>
+                <p className="section-text cta-text">{t.contactSection.text}</p>
+                <button type="button" className="primary-btn large" onClick={openContactPage}>
+                  {t.contactSection.button}
+                </button>
+              </div>
+            </Reveal>
           </div>
-        </motion.section>
+        </section>
       </main>
     </>
   );
 
+  /* ---------- CONTACT ---------- */
   const renderConfirmValue = (label: string, value: string) => (
-    <div className="confirm-row">
+    <div className="confirm-row" key={label}>
       <p className="confirm-label">{label}</p>
       <p className="confirm-value">{value || "-"}</p>
     </div>
@@ -435,17 +579,17 @@ function App() {
     <main className="contact-page">
       <motion.section
         className="contact-page-section"
-        initial={{ opacity: 0, y: 24 }}
+        initial={{ opacity: 0, y: 22 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.45 }}
+        transition={{ duration: 0.5, ease: EASE }}
       >
         <div className="section-inner contact-page-inner">
           <button type="button" className="back-link-btn" onClick={goHomePage}>
-            {t.nav.backHome}
+            <span aria-hidden="true">←</span> {t.nav.backHome}
           </button>
 
           <p className="section-label">{t.contactPage.eyebrow}</p>
-          <h1 className="contact-page-title">{t.contactPage.title}</h1>
+          <h1 className="display-title contact-page-title">{t.contactPage.title}</h1>
           <p className="section-text">{t.contactPage.description}</p>
 
           {contactStep === "form" ? (
@@ -566,11 +710,7 @@ function App() {
               ) : null}
 
               {submitMessage ? (
-                <p
-                  className={
-                    submitError ? "contact-status error" : "contact-status success"
-                  }
-                >
+                <p className={submitError ? "contact-status error" : "contact-status success"}>
                   {submitMessage}
                 </p>
               ) : null}
@@ -617,11 +757,7 @@ function App() {
               </div>
 
               {submitMessage ? (
-                <p
-                  className={
-                    submitError ? "contact-status error" : "contact-status success"
-                  }
-                >
+                <p className={submitError ? "contact-status error" : "contact-status success"}>
                   {submitMessage}
                 </p>
               ) : null}
@@ -634,15 +770,49 @@ function App() {
 
   return (
     <div className="site">
-      <header className="topbar">
+      <div className="grain" aria-hidden="true" />
+      <motion.div className="progress-bar" style={{ scaleX: progressScale }} aria-hidden="true" />
+      <span className="timecode" aria-hidden="true">
+        <span ref={timeRef}>00:00</span>
+      </span>
+
+      <AnimatePresence>
+        {intro && pageView === "home" ? (
+          <motion.div
+            className="intro"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.6, ease: EASE }}
+          >
+            <motion.span
+              className="intro-name"
+              initial={{ opacity: 0, y: 14 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: EASE }}
+            >
+              y-Hiyori
+            </motion.span>
+            <motion.span
+              className="intro-line"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              transition={{ duration: 1.1, ease: EASE }}
+            />
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+
+      <header className={scrolled ? "topbar scrolled" : "topbar"}>
         <div className="topbar-inner">
           <button type="button" className="brand" onClick={goHomePage}>
-            y-Hiyori
+            y-Hiyori<span className="brand-dot">.</span>
           </button>
 
           <nav className="nav">
             {pageView === "home" ? (
               <>
+                <a href="#profile">{t.nav.profile}</a>
+                <a href="#sound">{t.nav.sound}</a>
                 <a href="#discography">{t.nav.discography}</a>
                 <button type="button" className="nav-button" onClick={openContactPage}>
                   {t.nav.contact}
@@ -655,32 +825,17 @@ function App() {
             )}
           </nav>
 
-          <div
-            className="language-switcher"
-            role="group"
-            aria-label="Language switcher"
-          >
-            <button
-              type="button"
-              className={language === "ja" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLanguage("ja")}
-            >
-              JP
-            </button>
-            <button
-              type="button"
-              className={language === "ko" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLanguage("ko")}
-            >
-              KR
-            </button>
-            <button
-              type="button"
-              className={language === "en" ? "lang-btn active" : "lang-btn"}
-              onClick={() => setLanguage("en")}
-            >
-              EN
-            </button>
+          <div className="language-switcher" role="group" aria-label="Language switcher">
+            {(["ja", "ko", "en"] as const).map((lang) => (
+              <button
+                key={lang}
+                type="button"
+                className={language === lang ? "lang-btn active" : "lang-btn"}
+                onClick={() => setLanguage(lang)}
+              >
+                {lang === "ja" ? "JP" : lang === "ko" ? "KR" : "EN"}
+              </button>
+            ))}
           </div>
         </div>
       </header>
@@ -689,7 +844,24 @@ function App() {
 
       <footer className="footer">
         <div className="footer-inner">
-          <span>© 2026 y-Hiyori. {t.footer.rights}</span>
+          <div className="footer-brand">y-Hiyori</div>
+          <div className="footer-center">
+            <div className="footer-socials">
+              <a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram">
+                <FaInstagram />
+              </a>
+              <a href={youtubeChannelUrl} target="_blank" rel="noreferrer" aria-label="YouTube">
+                <FaYoutube />
+              </a>
+              <a href={tiktokUrl} target="_blank" rel="noreferrer" aria-label="TikTok">
+                <FaTiktok />
+              </a>
+            </div>
+            <p className="footer-tagline">{t.footer.tagline}</p>
+          </div>
+          <div className="footer-rights">
+            © 2026 y-Hiyori. {t.footer.rights}
+          </div>
         </div>
       </footer>
 
@@ -704,10 +876,10 @@ function App() {
           >
             <motion.div
               className="modal-content"
-              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              initial={{ opacity: 0, y: 24, scale: 0.97 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 24, scale: 0.96 }}
-              transition={{ duration: 0.22 }}
+              exit={{ opacity: 0, y: 24, scale: 0.97 }}
+              transition={{ duration: 0.28, ease: EASE }}
               onClick={(event) => event.stopPropagation()}
             >
               <div className="modal-image-wrap">
@@ -718,8 +890,7 @@ function App() {
                   onError={(event) => {
                     const target = event.currentTarget;
                     target.style.display = "none";
-                    const fallback =
-                      target.nextElementSibling as HTMLDivElement | null;
+                    const fallback = target.nextElementSibling as HTMLDivElement | null;
                     if (fallback) fallback.style.display = "flex";
                   }}
                 />
@@ -727,6 +898,7 @@ function App() {
               </div>
 
               <div className="modal-body">
+                <p className="modal-eyebrow">{t.modal.detail}</p>
                 <h3 className="modal-title">{selectedWork.title}</h3>
                 <p className="modal-artist">{selectedWork.artist}</p>
                 {selectedWork.release ? (
