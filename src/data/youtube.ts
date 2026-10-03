@@ -5,8 +5,9 @@ export type YoutubeVideoItem = {
 
 export const youtubeVideos: YoutubeVideoItem[] = [
   {
-    id: "video-1",
-    embedUrl: "https://youtu.be/qhfG7Pj_3vg?si=XwrpzapPQDI2nofo",
+    id: "qhfG7Pj_3vg",
+    // NOTE: iframe の src には「埋め込み用URL」が必要。
+    // youtu.be/… や watch?v=… のままでは再生できないため /embed/ 形式にする。
+    embedUrl: "https://www.youtube.com/embed/qhfG7Pj_3vg?rel=0",
   },
-
 ];
