@@ -1,7 +1,11 @@
 export type Language = "ja" | "ko" | "en";
 
+type Fact = { k: string; v: string };
+
 type TranslationSchema = {
   nav: {
+    profile: string;
+    sound: string;
     discography: string;
     contact: string;
     backHome: string;
@@ -12,6 +16,20 @@ type TranslationSchema = {
     subtitle: string;
     worksCta: string;
     contactCta: string;
+    scroll: string;
+    kana: string;
+  };
+  marquee: string[];
+  about: {
+    label: string;
+    title: string;
+    body: string;
+    facts: Fact[];
+  };
+  sound: {
+    label: string;
+    title: string;
+    caption: string;
   };
   discography: {
     label: string;
@@ -68,12 +86,15 @@ type TranslationSchema = {
   };
   footer: {
     rights: string;
+    tagline: string;
   };
 };
 
 export const translations: Record<Language, TranslationSchema> = {
   ja: {
     nav: {
+      profile: "プロフィール",
+      sound: "サウンド",
       discography: "参加作品",
       contact: "お問い合わせ",
       backHome: "トップへ戻る",
@@ -81,11 +102,40 @@ export const translations: Record<Language, TranslationSchema> = {
     hero: {
       eyebrow: "Composer / Track Maker / Producer",
       profileText:
-        "現在17歳でK-popアーティストに楽曲提供を目標に活動しています。",
+        "現在{age}歳でK-popアーティストに楽曲提供を目標に活動しています。",
       subtitle:
         "韓国でFull8loom gloryface作曲家と楽曲制作。821sound見学を経験。",
       worksCta: "作品を見る",
       contactCta: "お問い合わせ",
+      scroll: "Scroll",
+      kana: "山口 陽縁",
+    },
+    marquee: [
+      "作曲",
+      "Composer",
+      "編曲",
+      "Track Maker",
+      "作詞",
+      "Producer",
+      "K-Pop",
+      "Songwriting",
+    ],
+    about: {
+      label: "Profile",
+      title: "音で、物語を描く。",
+      body:
+        "作詞・作曲・編曲までを一貫して手がける、{age}歳の作曲家。韓国ではFull8loomのgloryface作曲家との楽曲制作を経験し、821soundのスタジオを見学。ジャンルや国境を越えて、聴く人の記憶に残るサウンドを追求しています。",
+      facts: [
+        { k: "Age", v: "{age}" },
+        { k: "Based in", v: "Japan" },
+        { k: "Field", v: "K-Pop / Pop" },
+        { k: "Role", v: "Composer · Producer" },
+      ],
+    },
+    sound: {
+      label: "Latest",
+      title: "サウンドを聴く",
+      caption: "Released Works",
     },
     discography: {
       label: "Discography",
@@ -126,10 +176,8 @@ export const translations: Record<Language, TranslationSchema> = {
       fieldRequired: "必須",
       placeholderSubjectIndividual: "",
       placeholderSubjectCompany: "",
-      placeholderMessageIndividual:
-        "",
-      placeholderMessageCompany:
-        "",
+      placeholderMessageIndividual: "",
+      placeholderMessageCompany: "",
     },
     validation: {
       selectInquiryType: "お問い合わせ区分を選択してください。",
@@ -146,23 +194,55 @@ export const translations: Record<Language, TranslationSchema> = {
     },
     footer: {
       rights: "All Rights Reserved.",
+      tagline: "Composer / Track Maker / Producer",
     },
   },
 
   ko: {
     nav: {
-  discography: "디스코그래피",
-  contact: "문의하기",
-  backHome: "홈으로 돌아가기",
-},
+      profile: "프로필",
+      sound: "사운드",
+      discography: "디스코그래피",
+      contact: "문의하기",
+      backHome: "홈으로 돌아가기",
+    },
     hero: {
       eyebrow: "Composer / Track Maker / Producer",
       profileText:
-        "저는 08년생으로, K-pop 아티스트와의 작업을 목표로 활동하고 있는 트랙메이커입니다.",
+        "저는 2008년생으로, K-pop 아티스트와의 작업을 목표로 활동하고 있는 트랙메이커입니다.",
       subtitle:
         "한국에서 Full8loom gloryface 작곡가와 곡을 제작. 821sound 견학 경험.",
       worksCta: "작품 보기",
       contactCta: "문의하기",
+      scroll: "Scroll",
+      kana: "야마구치 히요리",
+    },
+    marquee: [
+      "작곡",
+      "Composer",
+      "편곡",
+      "Track Maker",
+      "작사",
+      "Producer",
+      "K-Pop",
+      "Songwriting",
+    ],
+    about: {
+      label: "Profile",
+      title: "음악으로 이야기를 그리다.",
+      body:
+        "작사·작곡·편곡까지 직접 작업하는 2008년생 작곡가. 한국에서는 Full8loom의 gloryface 작곡가와 곡을 제작했고, 821sound 스튜디오를 견학했습니다. 장르와 국경을 넘어, 듣는 이의 기억에 남는 사운드를 추구합니다.",
+      facts: [
+        { k: "Age", v: "{age}" },
+        { k: "Based in", v: "Japan" },
+        { k: "Field", v: "K-Pop / Pop" },
+        { k: "Role", v: "Composer · Producer" },
+      ],
+    },
+    sound: {
+      label: "Latest",
+      title: "사운드 듣기",
+      caption: "Released Works",
     },
     discography: {
       label: "Discography",
@@ -178,8 +258,7 @@ export const translations: Record<Language, TranslationSchema> = {
     contactPage: {
       eyebrow: "Contact",
       title: "문의 입력",
-      description:
-        "문의 구분을 선택한 뒤 필요한 내용을 입력해 주세요.",
+      description: "문의 구분을 선택한 뒤 필요한 내용을 입력해 주세요.",
       typeLabel: "문의 구분",
       typePlaceholder: "구분을 선택해 주세요",
       typeIndividual: "개인",
@@ -203,10 +282,8 @@ export const translations: Record<Language, TranslationSchema> = {
       fieldRequired: "필수",
       placeholderSubjectIndividual: "",
       placeholderSubjectCompany: "",
-      placeholderMessageIndividual:
-        "",
-      placeholderMessageCompany:
-        "",
+      placeholderMessageIndividual: "",
+      placeholderMessageCompany: "",
     },
     validation: {
       selectInquiryType: "문의 구분을 선택해 주세요.",
@@ -223,11 +300,14 @@ export const translations: Record<Language, TranslationSchema> = {
     },
     footer: {
       rights: "All Rights Reserved.",
+      tagline: "Composer / Track Maker / Producer",
     },
   },
 
   en: {
     nav: {
+      profile: "Profile",
+      sound: "Sound",
       discography: "Discography",
       contact: "Contact",
       backHome: "Back to Home",
@@ -235,11 +315,40 @@ export const translations: Record<Language, TranslationSchema> = {
     hero: {
       eyebrow: "Composer / Track Maker / Producer",
       profileText:
-        "Currently 17 years old, working toward a career in songwriting and production for K-pop artists.",
+        "Currently {age} years old, working toward a career in songwriting and production for K-pop artists.",
       subtitle:
         "Composer Full8loom Gloryface and song production in Korea. Experience 821 sound tour.",
       worksCta: "View Works",
       contactCta: "Contact",
+      scroll: "Scroll",
+      kana: "Yamaguchi Hiyori",
+    },
+    marquee: [
+      "Composing",
+      "Composer",
+      "Arrangement",
+      "Track Maker",
+      "Lyrics",
+      "Producer",
+      "K-Pop",
+      "Songwriting",
+    ],
+    about: {
+      label: "Profile",
+      title: "Painting stories with sound.",
+      body:
+        "A {age}-year-old composer working across lyrics, composition, and arrangement. In Korea, produced music with composer Gloryface of Full8loom and toured the 821sound studio. Chasing sounds that stay with the listener — across genres and borders.",
+      facts: [
+        { k: "Age", v: "{age}" },
+        { k: "Based in", v: "Japan" },
+        { k: "Field", v: "K-Pop / Pop" },
+        { k: "Role", v: "Composer · Producer" },
+      ],
+    },
+    sound: {
+      label: "Latest",
+      title: "Listen to the sound",
+      caption: "Released Works",
     },
     discography: {
       label: "Discography",
@@ -280,10 +389,8 @@ export const translations: Record<Language, TranslationSchema> = {
       fieldRequired: "Required",
       placeholderSubjectIndividual: "",
       placeholderSubjectCompany: "",
-      placeholderMessageIndividual:
-        "",
-      placeholderMessageCompany:
-        "",
+      placeholderMessageIndividual: "",
+      placeholderMessageCompany: "",
     },
     validation: {
       selectInquiryType: "Please select an inquiry type.",
@@ -300,6 +407,7 @@ export const translations: Record<Language, TranslationSchema> = {
     },
     footer: {
       rights: "All Rights Reserved.",
+      tagline: "Composer / Track Maker / Producer",
     },
   },
 };
