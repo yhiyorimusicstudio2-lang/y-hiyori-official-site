@@ -138,7 +138,6 @@ function App() {
   const heroScale = useTransform(heroProg, [0, 1], [1, 0.82]);
   const heroY = useTransform(heroProg, [0, 1], [0, -50]);
   const heroOpacity = useTransform(heroProg, [0, 0.55, 1], [1, 0.85, 0]);
-  const heroFilter = useTransform(heroProg, [0, 1], ["blur(0px)", "blur(9px)"]);
   const portraitScale = useTransform(heroProg, [0, 1], [1, 1.16]);
   const portraitOpacity = useTransform(heroProg, [0, 0.7, 1], [1, 0.9, 0.1]);
   const hintOpacity = useTransform(heroProg, [0, 0.18], [1, 0]);
@@ -353,7 +352,7 @@ function App() {
             style={
               reduce
                 ? undefined
-                : { scale: heroScale, y: heroY, opacity: heroOpacity, filter: heroFilter }
+                : { scale: heroScale, y: heroY, opacity: heroOpacity }
             }
           >
             <div className="hero-grid">
@@ -804,9 +803,25 @@ function App() {
 
       <header className={scrolled ? "topbar scrolled" : "topbar"}>
         <div className="topbar-inner">
-          <button type="button" className="brand" onClick={goHomePage}>
-            y-Hiyori<span className="brand-dot">.</span>
-          </button>
+          <div className="brand-group">
+            <button type="button" className="brand" onClick={goHomePage}>
+              y-Hiyori<span className="brand-dot">.</span>
+            </button>
+
+            <span className="brand-divider" aria-hidden="true" />
+
+            <div className="brand-socials">
+              <a href={instagramUrl} target="_blank" rel="noreferrer" aria-label="Instagram">
+                <FaInstagram />
+              </a>
+              <a href={youtubeChannelUrl} target="_blank" rel="noreferrer" aria-label="YouTube">
+                <FaYoutube />
+              </a>
+              <a href={tiktokUrl} target="_blank" rel="noreferrer" aria-label="TikTok">
+                <FaTiktok />
+              </a>
+            </div>
+          </div>
 
           <nav className="nav">
             {pageView === "home" ? (
