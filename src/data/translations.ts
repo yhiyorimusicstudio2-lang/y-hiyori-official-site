@@ -84,6 +84,20 @@ type TranslationSchema = {
     detail: string;
     close: string;
   };
+  release: {
+    eyebrow: string;
+    listen: string;
+    releaseDate: string;
+    trackList: string;
+    credits: string;
+    shortsLabel: string;
+    shortsTitle: string;
+    artistProfile: string;
+    artistPage: string;
+    share: string;
+    copyLink: string;
+    copied: string;
+  };
   footer: {
     rights: string;
     tagline: string;
@@ -192,6 +206,20 @@ export const translations: Record<Language, TranslationSchema> = {
       detail: "作品詳細",
       close: "閉じる",
     },
+    release: {
+      eyebrow: "Release",
+      listen: "Listen",
+      releaseDate: "配信日",
+      trackList: "収録曲",
+      credits: "クレジット",
+      shortsLabel: "YouTube Shorts",
+      shortsTitle: "YouTube Shortsで利用できます",
+      artistProfile: "アーティストプロフィール",
+      artistPage: "アーティストページ",
+      share: "このページをシェア",
+      copyLink: "URLをコピー",
+      copied: "コピーしました",
+    },
     footer: {
       rights: "All Rights Reserved.",
       tagline: "Composer / Track Maker / Producer",
@@ -297,6 +325,20 @@ export const translations: Record<Language, TranslationSchema> = {
     modal: {
       detail: "작품 상세",
       close: "닫기",
+    },
+    release: {
+      eyebrow: "Release",
+      listen: "듣기",
+      releaseDate: "발매일",
+      trackList: "수록곡",
+      credits: "크레딧",
+      shortsLabel: "YouTube Shorts",
+      shortsTitle: "YouTube Shorts에서 사용할 수 있습니다",
+      artistProfile: "아티스트 프로필",
+      artistPage: "아티스트 페이지",
+      share: "이 페이지 공유",
+      copyLink: "URL 복사",
+      copied: "복사했습니다",
     },
     footer: {
       rights: "All Rights Reserved.",
@@ -404,6 +446,20 @@ export const translations: Record<Language, TranslationSchema> = {
     modal: {
       detail: "Work Detail",
       close: "Close",
+    },
+    release: {
+      eyebrow: "Release",
+      listen: "Listen",
+      releaseDate: "Release Date",
+      trackList: "Track List",
+      credits: "Credits",
+      shortsLabel: "YouTube Shorts",
+      shortsTitle: "Music available for YouTube Shorts",
+      artistProfile: "Artist Profile",
+      artistPage: "Artist page",
+      share: "Share this Page",
+      copyLink: "Copy URL",
+      copied: "Copied",
     },
     footer: {
       rights: "All Rights Reserved.",

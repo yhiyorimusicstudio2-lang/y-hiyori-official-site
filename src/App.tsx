@@ -9,13 +9,15 @@ import {
   useTransform,
 } from "framer-motion";
 import emailjs from "@emailjs/browser";
-import { FaInstagram, FaTiktok, FaYoutube } from "react-icons/fa";
+import { FaInstagram, FaLink, FaTiktok, FaYoutube } from "react-icons/fa";
+import { SiFacebook, SiLine, SiX } from "react-icons/si";
 import { works, type WorkItem } from "./data/works";
 import { youtubeVideos } from "./data/youtube";
+import { artistProfile, getRelease, type Release } from "./data/releases";
 import type { Language } from "./data/translations";
 import { translations } from "./data/translations";
 
-type PageView = "home" | "contact";
+type PageView = "home" | "contact" | "release";
 type InquiryType = "" | "individual" | "company";
 type ContactStep = "form" | "confirm";
 
@@ -111,9 +113,15 @@ function App() {
   const [isSending, setIsSending] = useState(false);
   const [submitMessage, setSubmitMessage] = useState("");
   const [submitError, setSubmitError] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const [releaseSlug, setReleaseSlug] = useState("");
 
   const t = useMemo(() => translations[language], [language]);
   const reduce = usePrefersReducedMotion();
+  const activeRelease = useMemo(
+    () => getRelease(releaseSlug || undefined),
+    [releaseSlug],
+  );
 
   const instagramUrl = "https://www.instagram.com/yhiyori_music";
   const youtubeChannelUrl = "https://www.youtube.com/@y-Hiyori";
@@ -168,12 +176,23 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const hash = window.location.hash;
-    if (hash === "#contact-page") {
-      setPageView("contact");
-    } else {
-      setPageView("home");
-    }
+    const applyHash = () => {
+      const hash = window.location.hash;
+      if (hash === "#contact-page") {
+        setPageView("contact");
+      } else if (hash === "#release" || hash.startsWith("#release/")) {
+        setPageView("release");
+        setReleaseSlug(
+          hash.startsWith("#release/") ? hash.slice("#release/".length) : "",
+        );
+      } else {
+        setPageView("home");
+      }
+    };
+
+    applyHash();
+    window.addEventListener("hashchange", applyHash);
+    return () => window.removeEventListener("hashchange", applyHash);
   }, []);
 
   useEffect(() => {
@@ -566,6 +585,235 @@ function App() {
     </>
   );
 
+  /* ---------- RELEASE ---------- */
+  const buildReleaseUrl = (slug: string) =>
+    `${window.location.origin}${window.location.pathname}#release/${slug}`;
+
+  const handleCopyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(buildReleaseUrl(activeRelease.slug));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  };
+
+  const renderReleasePage = (release: Release) => (
+    <main className="release-page">
+      <section className="release-hero">
+        <div className="section-inner release-inner">
+          <button type="button" className="back-link-btn" onClick={goHomePage}>
+            <span aria-hidden="true">←</span> {t.nav.backHome}
+          </button>
+
+          <div className="release-hero-grid">
+            <Reveal className="release-cover-wrap" reduce={reduce}>
+              <img
+                src={release.cover}
+                alt={`${release.artist} - ${release.title}`}
+                className="release-cover"
+              />
+            </Reveal>
+
+            <Reveal className="release-hero-info" delay={0.1} reduce={reduce}>
+              <p className="section-label">{t.release.eyebrow}</p>
+              <h1 className="release-title">{release.title}</h1>
+              <p className="release-artist">{release.artist}</p>
+              <p className="release-date">
+                {t.release.releaseDate} — {release.releaseDate}
+              </p>
+
+              <p className="release-listen-label">{t.release.listen}</p>
+              <div className="store-grid">
+                {release.links.map((link) => {
+                  const Icon = link.icon;
+                  return (
+                    <a
+                      key={link.name}
+                      className="store-link"
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      <span
+                        className="store-icon"
+                        style={{ color: link.accent }}
+                        aria-hidden="true"
+                      >
+                        <Icon />
+                      </span>
+                      <span className="store-name">{link.name}</span>
+                      <span className="store-arrow" aria-hidden="true">
+                        ↗
+                      </span>
+                    </a>
+                  );
+                })}
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <section className="release-block">
+        <div className="section-inner release-inner">
+          <Reveal reduce={reduce}>
+            <div className="release-card">
+              <p className="section-label">{t.release.trackList}</p>
+              <ol className="release-tracks">
+                {release.tracks.map((track) => (
+                  <li className="release-track" key={track.number}>
+                    <div className="release-track-head">
+                      <span className="release-track-num">
+                        {String(track.number).padStart(2, "0")}
+                      </span>
+                      <div className="release-track-meta">
+                        <p className="release-track-title">{track.title}</p>
+                        <p className="release-track-artist">{track.artist}</p>
+                      </div>
+                    </div>
+                    <details className="release-credits">
+                      <summary>{t.release.credits}</summary>
+                      <dl className="credit-list">
+                        {track.credits.map((credit) => (
+                          <div className="credit-row" key={credit.role}>
+                            <dt className="credit-role">{credit.role}</dt>
+                            <dd className="credit-names">{credit.names}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </details>
+                  </li>
+                ))}
+              </ol>
+            </div>
+          </Reveal>
+
+          <Reveal reduce={reduce}>
+            <div className="release-card release-shorts-card">
+              <span className="release-shorts-icon" aria-hidden="true">
+                <FaYoutube />
+              </span>
+              <div className="release-shorts-body">
+                <p className="release-shorts-label">{t.release.shortsLabel}</p>
+                <p className="release-shorts-title">{t.release.shortsTitle}</p>
+              </div>
+              <a
+                className="release-shorts-link"
+                href={release.shorts.url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <span>{release.shorts.title}</span>
+                <span className="store-arrow" aria-hidden="true">
+                  ↗
+                </span>
+              </a>
+            </div>
+          </Reveal>
+
+          <Reveal reduce={reduce}>
+            <div className="release-card release-profile">
+              <p className="section-label">{t.release.artistProfile}</p>
+              <h2 className="release-card-title">{artistProfile.name}</h2>
+              <div className="release-profile-links">
+                <a
+                  className="release-artist-link"
+                  href={artistProfile.pageUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <span>{t.release.artistPage}</span>
+                  <span className="store-arrow" aria-hidden="true">
+                    ↗
+                  </span>
+                </a>
+                <div className="release-socials">
+                  <a
+                    href={artistProfile.socials.youtube}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="YouTube"
+                  >
+                    <FaYoutube />
+                  </a>
+                  <a
+                    href={artistProfile.socials.instagram}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="Instagram"
+                  >
+                    <FaInstagram />
+                  </a>
+                  <a
+                    href={artistProfile.socials.tiktok}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label="TikTok"
+                  >
+                    <FaTiktok />
+                  </a>
+                </div>
+              </div>
+            </div>
+          </Reveal>
+
+          <Reveal reduce={reduce}>
+            <div className="release-share">
+              <p className="release-share-label">{t.release.share}</p>
+              <div className="release-share-buttons">
+                <a
+                  className="share-btn"
+                  href={`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+                    buildReleaseUrl(release.slug),
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="Facebook"
+                >
+                  <SiFacebook />
+                </a>
+                <a
+                  className="share-btn"
+                  href={`https://x.com/share?url=${encodeURIComponent(
+                    buildReleaseUrl(release.slug),
+                  )}&text=${encodeURIComponent(
+                    `${release.title} by ${release.artist}`,
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="X"
+                >
+                  <SiX />
+                </a>
+                <a
+                  className="share-btn"
+                  href={`http://line.me/R/msg/text/?${encodeURIComponent(
+                    `${release.title} by ${release.artist}\n${buildReleaseUrl(release.slug)}`,
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label="LINE"
+                >
+                  <SiLine />
+                </a>
+                <button
+                  type="button"
+                  className="share-btn share-copy"
+                  onClick={handleCopyUrl}
+                >
+                  <FaLink />
+                  <span>{copied ? t.release.copied : t.release.copyLink}</span>
+                </button>
+              </div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+    </main>
+  );
+
   /* ---------- CONTACT ---------- */
   const renderConfirmValue = (label: string, value: string) => (
     <div className="confirm-row" key={label}>
@@ -855,7 +1103,11 @@ function App() {
         </div>
       </header>
 
-      {pageView === "home" ? renderHomePage() : renderContactPage()}
+      {pageView === "home"
+        ? renderHomePage()
+        : pageView === "contact"
+          ? renderContactPage()
+          : renderReleasePage(activeRelease)}
 
       <footer className="footer">
         <div className="footer-inner">
