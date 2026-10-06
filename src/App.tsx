@@ -617,14 +617,27 @@ function App() {
             </Reveal>
 
             <Reveal className="release-hero-info" delay={0.1} reduce={reduce}>
-              <p className="section-label">{t.release.eyebrow}</p>
+              <p className="release-eyebrow">
+                <span className="release-eyebrow-dot" aria-hidden="true" />
+                {t.release.eyebrow}
+              </p>
               <h1 className="release-title">{release.title}</h1>
               <p className="release-artist">{release.artist}</p>
-              <p className="release-date">
-                {t.release.releaseDate} — {release.releaseDate}
-              </p>
 
-              <p className="release-listen-label">{t.release.listen}</p>
+              <div className="release-meta-row">
+                <span className="release-meta-label">{t.release.releaseDate}</span>
+                <span className="release-meta-value">{release.releaseDate}</span>
+              </div>
+            </Reveal>
+          </div>
+        </div>
+      </section>
+
+      <section className="release-block">
+        <div className="section-inner release-inner">
+          <Reveal reduce={reduce}>
+            <div className="release-listen">
+              <p className="section-label">{t.release.listen}</p>
               <div className="store-grid">
                 {release.links.map((link) => {
                   const Icon = link.icon;
@@ -651,13 +664,9 @@ function App() {
                   );
                 })}
               </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
+            </div>
+          </Reveal>
 
-      <section className="release-block">
-        <div className="section-inner release-inner">
           <Reveal reduce={reduce}>
             <div className="release-card">
               <p className="section-label">{t.release.trackList}</p>
@@ -716,19 +725,8 @@ function App() {
           <Reveal reduce={reduce}>
             <div className="release-card release-profile">
               <p className="section-label">{t.release.artistProfile}</p>
-              <h2 className="release-card-title">{artistProfile.name}</h2>
-              <div className="release-profile-links">
-                <a
-                  className="release-artist-link"
-                  href={artistProfile.pageUrl}
-                  target="_blank"
-                  rel="noreferrer"
-                >
-                  <span>{t.release.artistPage}</span>
-                  <span className="store-arrow" aria-hidden="true">
-                    ↗
-                  </span>
-                </a>
+              <div className="release-profile-row">
+                <h2 className="release-card-title">{artistProfile.name}</h2>
                 <div className="release-socials">
                   <a
                     href={artistProfile.socials.youtube}
